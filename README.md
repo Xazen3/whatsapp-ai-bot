@@ -139,6 +139,10 @@ A big thank you to these people for supporting this project.
 | ------------------------------------------ | ----------------------------------------------- | --------------------------------------- | -------------------------------------------------------- |
 | [Link](https://buymeacoffee.com/zainuldin) | [Link](https://wa-ai-seven.vercel.app/feat-req) | [Link](https://wa-ai-seven.vercel.app/) | [Link](https://chat.whatsapp.com) |
 
+<a href="https://auraplusplus.com/projects/whatsapp-ai-bot" target="_blank" rel="noopener">
+  <img src="https://auraplusplus.com/images/badges/featured-on-dark.svg" alt="Featured on Aura++" />
+</a>
+
 ## About Us
 
 <div align="center">
