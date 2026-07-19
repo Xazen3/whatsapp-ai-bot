@@ -1,53 +1,29 @@
-FROM node:20-alpine
+FROM node:20
 
-RUN apk add --no-cache git openssh openssh-keygen openssl
+# Gerekli sistem kütüphaneleri (Puppeteer/Chromium için)
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-ipafont-gothic \
+    fonts-wqy-zenhei \
+    fonts-thai-tlwg \
+    fonts-kacst \
+    fonts-freefont-ttf \
+    libxss1 \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
-# SSH setup
+WORKDIR /app
+COPY . .
 
-ARG SSH_KEY
-ENV SSH_KEY=$SSH_KEY
+# Bağımlılıkları kur
+RUN npm install express --legacy-peer-deps && npm install --legacy-peer-deps
 
-RUN mkdir -p /root/.ssh && \
-    chmod 700 /root/.ssh
+# OpenAI anahtarı yoksa çökmeyi önle
+ENV OPENAI_API_KEY="sahte_anahtar"
 
-# Create id_rsa from string arg, and set permissions
+# Puppeteer ayarları
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-RUN echo "$SSH_KEY" > /root/.ssh/id_rsa && \
-    chmod 600 /root/.ssh/id_rsa
-
-# RUN eval $(ssh-agent -s)
-RUN echo "$SSH_KEY" > /root/.ssh/id_rsa
-# RUN  echo "    IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
-# RUN echo -e "Host github.com\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_rsa" > /etc/ssh/ssh_config
-# RUN echo -e "Host github.com\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_rsa" > ~/.ssh/config
-# RUN chmod 600 ~/.ssh/id_rsa
-
-# Create known_hosts
-RUN touch /root/.ssh/known_hosts
-
-# Add git providers to known_hosts
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
-# RUN ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
-# RUN ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
-
-# test
-
-# RUN ssh -T git@github.com
-
-## ---
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-COPY yarn.lock ./
-COPY tsconfig.json ./
-
-COPY src ./src
-COPY static ./static
-
-RUN yarn
-
-EXPOSE 3000
-
-CMD ["yarn", "dev"]
-
+# Portu dinamik olarak dinleyen ve botu başlatan komut
+CMD node -e "const express = require('express'); const app = express(); app.get('/', (req, res) => res.send('Bot Aktif!')); app.listen(process.env.PORT || 3000);" & npm run start
